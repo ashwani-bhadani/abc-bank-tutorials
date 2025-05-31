@@ -94,24 +94,93 @@ public class PracticeQues1 {
         int[] arr = {23,33,44,55,66,77,88,99,11,22,34,67};
         //boxed() -> a Stream consistent of the elements of this stream, each boxed to an Integer
         List<Integer> numbers = Arrays.stream(arr).boxed().collect(Collectors.toList());
+
+        //M-1
         Map<Boolean,List<Integer>> result = numbers.stream().collect(Collectors.groupingBy(
                 x -> x%2==0   , Collectors.toList()
         )); //1st part is Boolean & 2nd is list of accepted & rejected, need to take out the list only
 
         result.entrySet().stream().forEach(x -> System.out.println(x.getValue() ));
 
+        //M-2 using partitioning by instead of Collectors.groupingBy
+        //partitoningBy uses a predicate but groupingBy uses a function
+        numbers.stream().collect(
+                Collectors.partitioningBy( y ->y%2!=0, Collectors.toList() )
+        ).entrySet().stream()
+                .forEach(k -> System.out.println(k.getValue()));
+
     }
-
-
 
     /**
-     *
+     * find occurrence of each character in  String words = "dabcadefg";
+     * solution: convert to stream of characters
+     * chars() gives an IntStream which you can mapToObj() of character
+     * use the Collectors.groupingBy(identity, counting) inside collect
      */
     @Test
-    public void ques() {
-
+    public void ques7() {
+        String words = "dabcadefgjkjjsdklnsdjdkldjfkadckjnsdjbjeaiguwrhsdn";
+        Map<Character, Long> result =
+        words.chars().mapToObj(ch -> (char) ch)
+                .collect(
+                        Collectors.groupingBy(Function.identity(), Collectors.counting())
+                );
+        System.out.println(result);
     }
 
+    @Test
+    public void ques8() {}
+
+    @Test
+    public void ques9() {}
+
+    @Test
+    public void ques10() {}
+
+    @Test
+    public void ques11() {}
+
+    @Test
+    public void ques12() {}
+
+    @Test
+    public void ques13() {}
+
+    @Test
+    public void ques14() {}
+
+    @Test
+    public void ques15() {}
+
+    @Test
+    public void ques16() {}
+
+    @Test
+    public void ques17() {}
+
+    @Test
+    public void ques18() {}
+
+    @Test
+    public void ques19() {}
+
+    @Test
+    public void ques20() {}
+
+    @Test
+    public void ques21() {}
+
+    @Test
+    public void ques22() {}
+
+    @Test
+    public void ques23() {}
+
+    @Test
+    public void ques24() {}
+
+    @Test
+    public void ques25() {}
 
 
 }
