@@ -1,8 +1,7 @@
-package com.streams;
+package com.practice;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 

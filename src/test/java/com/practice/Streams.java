@@ -1,0 +1,409 @@
+package com.practice;
+
+import org.junit.Test;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Streams {
+
+    /**
+     * 1. find th word having highest length in a sentence
+     * reurns the first longest word occurence
+     */
+    @Test
+    public void ques1() {
+        String line = "Quick brown fox jumps over the lazy hare";
+        String result = Arrays.asList(line.split(" ")).stream()
+                .max(Comparator.comparing(String::length)).get();
+        System.out.println("longest word : " + result);
+    }
+
+
+    /**
+     * 2. remove duplicates from stream & return in same order
+     *      convert string into int stream => each int means a character
+     *      reduce is a terminal operation
+     */
+    @Test
+    public void ques2() {
+        String words = "dabcadefg";
+        words.chars().distinct().mapToObj(w -> (char) w) //M-1
+                .forEach(System.out::print);
+        String result = Arrays.stream(words.split("")).distinct().collect(Collectors.joining()); //M-2
+        String res = Arrays.stream(words.split("")).distinct().reduce("",(x,y )-> x+y);  //M-3
+        System.out.println("\n"+result);
+        System.out.println(res);
+    }
+
+    /**3. given a sentence, find word having the nth highest length & then the length of that word too
+     * N= 2nd
+     */
+    @Test
+    public void ques3() {
+        String line = "I am learning stream in java 8";
+        String res = Arrays.stream(line.split(" "))
+                .sorted(Comparator.comparing(String::length).reversed()) //returns ascending order
+                .skip(1).findFirst().get(); //skip 1st to get 2nd largest
+        System.out.println("2nd Longest word "+res);
+
+        //finding length of 2nd longest word
+        int res2 = Arrays.stream(line.split(" "))
+                .map( w -> w.length())
+                .sorted(Comparator.reverseOrder()) //to get descending order
+                .skip(1).findFirst().get();
+        System.out.println("length : "+ res2);
+    }
+
+    /**4. given a sentence, find the #occurences of each word
+     *
+     */
+    @Test
+    public void ques4() {
+        String line = "I am learning stream in java 8";
+        Map<String, Long> occurences = Arrays.stream(line.split(" ")) //give list where u can't add more values
+                .collect(
+                        Collectors.groupingBy(
+                                Function.identity(),
+                                //forms the key, this function returns the arg itself (t) -> return t
+                                Collectors.counting()//forms the value
+                        )
+                ); //returns a map of string , long
+        System.out.println(occurences);
+    }
+
+
+    /**5. given a sentence, find the word with specified num of vowels
+     * find word having exactly 2 vowels
+     */
+    @Test
+    public void ques5() {
+        String line = "I am learning stream in java 8";
+        Arrays.stream(line.split(" ")).filter(
+                word -> word.replaceAll("[^aeiouAEIOU]", "")   //anything other than in regex will be replaced
+                        .length() == 2 //checking the length to str left with us
+        ).forEach(System.out::println);
+    }
+
+    /**6. given a int array divide into 2 lists one having even nos & other having odd
+     *
+     */
+    @Test
+    public void ques6() {
+        int[] arr = {23,33,44,55,66,77,88,99,11,22,34,67};
+        //boxed() -> a Stream consistent of the elements of this stream, each boxed to an Integer
+        List<Integer> numbers = Arrays.stream(arr).boxed().collect(Collectors.toList());
+
+        //M-1
+        Map<Boolean,List<Integer>> result = numbers.stream().collect(Collectors.groupingBy(
+                x -> x%2==0   , Collectors.toList()
+        )); //1st part is Boolean & 2nd is list of accepted & rejected, need to take out the list only
+
+        result.entrySet().stream().forEach(x -> System.out.println(x.getValue() ));
+
+        //M-2 using partitioning by instead of Collectors.groupingBy
+        //partitoningBy uses a predicate but groupingBy uses a function
+        numbers.stream().collect(
+                Collectors.partitioningBy( y ->y%2!=0, Collectors.toList() )
+        ).entrySet().stream()
+                .forEach(k -> System.out.println(k.getValue()));
+
+    }
+
+    /**
+     * find occurrence of each character in  String words = "dabcadefg";
+     * solution: convert to stream of characters
+     * chars() gives an IntStream which you can mapToObj() of character
+     * use the Collectors.groupingBy(identity, counting) inside collect
+     */
+    @Test
+    public void ques7() {
+        String words = "dabcadefgjkjjsdklnsdjdkldjfkadckjnsdjbjeaiguwrhsdn";
+        Map<Character, Long> result =
+        words.chars().mapToObj(ch -> (char) ch)
+                .collect(
+                        Collectors.groupingBy(Function.identity(), Collectors.counting())
+                );
+        System.out.println(result);
+    }
+
+    /**
+     * find the number of occurrence of each word in a line
+     */
+    @Test
+    public void ques8() {
+        String line = "Hello rocky wonderful wonderful wonderful is a wonderful & marvelous marvelous moviewonderful";
+        Map<String, Long> result = Arrays.asList(line.split(" ")).stream()
+                .collect(Collectors.groupingBy(Function.identity(),Collectors.counting()));
+        System.out.println(result);
+    }
+
+    /**
+     * find longest word in a scentence
+     */
+    @Test
+    public void ques9() {
+        String line = "Hello rocky wonderful is a wonderful & marvelous marvelous moviewonderful";
+        String result = Arrays.asList(line.split(" "))
+                .stream()
+                .max(
+                        Comparator
+                                .comparing(String::length)
+                ).get();
+        System.out.println(result);
+
+        //if you want word with nth highest length then below solution
+        //also remember comparator does natural sorting order of ascending
+        //Here you have to use comparator comparing based on length but sort it too
+        Arrays.stream(line.split(" "))
+                .sorted(
+                        Comparator
+                                .comparing(String::length)
+                                .reversed()
+                )
+                .skip(1);
+
+        //you can also use map to return a stream of words & their lengths
+//        Arrays.stream(line.split(" "))
+//                .map( w -> w.length())
+//                .collect(Collectors.toList());
+        int answer =  Arrays.stream(line.split(" "))
+                .map( w -> w.length())
+                .sorted(Comparator.reverseOrder())
+                .skip(1)
+                .findFirst().get();
+        //find length of 2nd longest word
+        System.out.println(answer);
+    }
+
+    /**
+     * find occurrence of each character in word & find the one appearing max times
+     */
+    @Test
+    public void ques10() {
+        String word = "dabcadefgmoviewonderfulHello";
+        Map<Character, Long> charsList = word.chars().mapToObj(ch -> (char) ch)
+                .collect(Collectors.groupingBy(
+                        Function.identity(), Collectors.counting()
+                ));
+        Map.Entry<Character, Long> result = charsList.entrySet().stream().max(
+                Map.Entry.comparingByValue()
+        ).orElse(null); //returns an entry
+        System.out.println(charsList);
+        System.out.println(result);
+
+    }
+
+    /**
+     * find the word which have N number of vowels in them, like print all words having 2 vowels each
+     */
+    @Test
+    public void ques11() {
+        String line = "Hello fight club is a wonderful & marvelous movie";
+
+        //below is wrong as it won't result in anything
+//        List<String> list = Arrays.stream(line.split(" "))
+//                .map(
+//                        word -> word.replaceAll(
+//                                "[^aeiouAEIOU]]", //regex pattern allow only vowels
+//                                "" //replace them with empty chars
+//                        )
+//                ).sorted(
+//                        Comparator.comparing(String::length) //sorts in natural order
+//                ).collect(
+//                        Collectors.toList() //returns a stream of word containing only vowels
+//                );
+//                //.findFirst().get()
+//         System.out.println(list);
+
+        //you the replqceAll returns the number of items it has replaced, you can add a check for that
+        //map will return the stream itself after modification,
+        // filter will return the original objects only which match your condition
+        Arrays.stream(line.split(" "))
+                .filter(
+                        word -> word.replaceAll("[^aeiouAEIOU]","")
+                                .length() == 3 //as after replacing all chars that do not match
+                        // the regex only vowels will be left
+                ).forEach(
+                        System.out::println
+                );
+
+    }
+
+    /**
+     * Given a word give me how many times each characters appears in a word/sentence
+     */
+    @Test
+    public void ques12() {
+        //HINT : whenever you are asked to give count , most questions could be solved by grouping by
+        //grouping by return two things most times so use it
+        String line = "Given a word give me how!! many times each cha@@racters appears in a word/sentence?";
+
+//        line.replaceAll(" ", "").chars().mapToObj( x -> (char) x);
+
+        Map<String, Long> result = Arrays.stream(
+                line.replaceAll(" ", "").split(""))
+                .collect(Collectors.groupingBy(
+                        Function.identity(), Collectors.counting()
+                )
+             );
+        System.out.println(result);
+        //what if you want only characters not special characters
+
+        Map<String, Long> result2 = Arrays.stream(
+                        line.replaceAll(" ", "").split(""))
+                //as regexp works only on String convert to string, split already returns String[]
+                .filter( w -> w.matches("[a-zA-Z]"))
+                .collect(Collectors.groupingBy(
+                                Function.identity(), Collectors.counting()
+                        )
+                );
+        System.out.println(result2);
+    }
+
+    /**
+     * find integers of highest / lowest possible value
+     */
+    @Test
+    public void ques13() {
+        int[] arr = {172, 2,3,4,5,7};
+        String result = Arrays.stream(arr)
+                .sorted() //can leave as is for natural order .sorted() => smallest number
+                .mapToObj(String::valueOf) //1st sort & then convert to string
+                .reduce("", (a, b) -> a + b);
+
+        String result2 = Arrays.stream(arr)
+                .mapToObj(x -> x)
+                .sorted(Comparator.reverseOrder()) //can leave as is for natural order .sorted() => smallest number
+                //Comparator.reverseOrder will throw error for integer, use collections
+                //java.util.stream.IntStream cannot be applied to given types as they are primitives;
+//                .mapToObj(String::valueOf) //1st sort & then convert to string
+                .map(x -> String.valueOf(x))
+                .reduce("", (a, b) -> a + b);
+
+        System.out.println(result);
+        System.out.println(result2);
+
+    }
+
+    /**
+     * given an int array find the sum of unique elements
+     */
+    @Test
+    public void ques14() {
+        int[] arrnum = {1,3,4,6,4,4,6,5,5,9,0,5,4,2,5,4,7,6,2,4,3,3,5,4,5,5,9,6,6,6,4};
+        //M-1 : using reduce
+        int result = Arrays.stream(arrnum).distinct().reduce(0,(x,y) -> x+y);
+        System.out.println(result);
+
+        //M-2 converting to a SET
+        Set<Integer> result2 = Arrays.stream(arrnum)
+                .mapToObj(x->x)
+                .collect(Collectors.toSet());
+        int result3 = result2.stream().reduce(0,(a,b)->a+b);
+        System.out.println(result3);
+    }
+
+    /**
+     * find the 2nd most repeated character in a scentence
+     */
+    @Test
+    public void ques15() {
+       String line = "Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home/bin/java -ea -Didea.test.cyclic.buffer.size=1048576 -javaagent:/Applications/IntelliJ IDEA CE.app/Contents/lib/idea_rt.jar=61616:/Applications/IntelliJ IDEA CE.app/Contents/bin -Dfile.encoding=UTF-8 -Dsun.st";
+       LinkedHashMap<String, Long> charOccurenceMap =
+       Arrays.stream(
+                line.replaceAll(" ","" )
+                .split("")
+                ) //split because chars() returns an IntStream and we want string match regex filter too
+                .filter( str  -> str.matches("[a-zA-Z]"))
+               .map(String::toLowerCase) //otherwise all chars will repeat based on case
+                .collect( //you are asked to find 2nd most occuring
+                        //there can be many chars which occur similar num of times
+                        //so preserve insertion order & collectors.groupingBy can have 3 arguments too
+                       Collectors.groupingBy(
+                               Function.identity(),
+                               LinkedHashMap::new,
+                               Collectors.counting()
+                       )
+                );
+        System.out.println(charOccurenceMap);
+
+        Map.Entry<String, Long> result = charOccurenceMap
+                                                .entrySet().stream()
+                                                .skip(1)
+                                                .findFirst()
+                                                .orElse(null);
+        System.out.println(result);
+    }
+
+    /**
+     * given an array of numbs, group them based on tens, twenties, thirties, forties
+     */
+    @Test
+    public void ques16() {
+        int[] nums = {37, 92, 15, 60, 3, 84, 18, 71, 9, 45, 28, 67, 50, 33, 88, 5, 73, 21, 96, 11,
+                82, 31, 77, 40, 1, 64, 90, 13, 7, 52, 26, 98, 58, 24, 86, 70, 17, 35, 93, 19,
+                10, 56, 43, 20, 6, 49, 0, 39, 12, 75, 80, 46, 29, 69, 32, 95, 38, 47, 59, 30,
+                14, 4, 22, 66, 99, 42, 63, 36, 34, 2, 78, 68, 87, 48, 85, 8, 94, 76, 16, 25,
+                81, 74, 44, 55, 41, 97, 62, 53, 23, 57, 51, 27, 89, 91, 65, 83, 61, 79, 72, 54};
+        //M-1
+        Map<Integer,List<Integer>> result = new HashMap<>();
+        Long numsList =
+        Arrays.stream(nums)
+                .map(x -> {
+                    if(x>9) {
+                        int tensPlace = (x/10)%10;
+                        result.computeIfAbsent(tensPlace * 10, k -> new ArrayList<>()).add(x);
+                    } else {
+                        result.computeIfAbsent(0, k -> new ArrayList<>()).add(x);
+                    }
+                    return x;
+                }) //map is not a terminal operator, so execute it need to add terminal
+                .boxed()
+                .collect(Collectors.counting());
+
+        System.out.println(result);
+
+       // M-2
+       Map<Integer, List<Integer>> result2 = Arrays.stream(nums)
+                .boxed()
+                .collect(
+                        Collectors.groupingBy(
+                                //1st key you want the tens place signifier
+                                //in 2nd values you want a list
+                                num -> (num / 10) * 10,
+                                Collectors.toList()
+                        )
+                );
+        System.out.println(result2);
+    }
+
+    @Test
+    public void ques17() {}
+
+    @Test
+    public void ques18() {}
+
+    @Test
+    public void ques19() {}
+
+    @Test
+    public void ques20() {}
+
+    @Test
+    public void ques21() {}
+
+    @Test
+    public void ques22() {}
+
+    @Test
+    public void ques23() {}
+
+    @Test
+    public void ques24() {}
+
+    @Test
+    public void ques25() {}
+
+}
