@@ -2,9 +2,12 @@ package com.practice;
 
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Streams {
 
@@ -373,37 +376,315 @@ public class Streams {
                                 //1st key you want the tens place signifier
                                 //in 2nd values you want a list
                                 num -> (num / 10) * 10,
+                                LinkedHashMap::new, //occurrence order preserved
                                 Collectors.toList()
                         )
                 );
         System.out.println(result2);
     }
 
+    /**
+     * give a list of strings take out only integers
+     */
     @Test
-    public void ques17() {}
+    public void ques17() {
+        List<Integer> numbers =
+        Arrays.asList("abs","122","323","fdaf","123aaf","12asd23","4213","24","@##@","1")
+                .stream().filter(
+                        x -> x.matches("\\d+") //[0-9]+ ,[0-9]{3}, \\d => single digit
+                ).map(Integer::parseInt)
+                .collect(Collectors.toList());
+        System.out.println(numbers);
+    }
+
+    /**
+     * Find product of first n elements in a list after skipping k elements
+     */
+    @Test
+    public void ques18() {
+        int k = 6;
+        int n = 15;
+        Integer reduce =
+        Arrays.asList(37, 92, 15, 60, 3, 84, 18, 71, 9, 45, 28, 67, 50, 33, 88, 5, 73, 21, 96, 11,
+                82, 31, 77, 40, 1, 64, 90, 13, 7, 52, 26, 98, 58, 24, 86, 70, 17, 35, 93, 19,
+                10, 56, 43, 20, 6, 49, 0, 39, 12, 75, 80, 46, 29, 69, 32, 95, 38, 47, 59, 30,
+                14, 4, 22, 66, 99, 42, 63, 36, 34, 2, 78, 68, 87, 48, 85, 8, 94, 76, 16, 25,
+                81, 74, 44, 55, 41, 97, 62, 53, 23, 57, 51, 27, 89, 91, 65, 83, 61, 79, 72, 54)
+                .stream()
+                .skip(k)
+                .limit(n)
+                .reduce(1,(a,b)-> a * b);
+        System.out.println(reduce);
+    }
+
+    /**
+     * group or pair anagrams from a list of strings
+     */
+    @Test
+    public void ques19() {
+        String[] words = {"pat","tap","pan","nap","team","meat","tree","silent","listen"};
+        //M-2
+        Map<String, List<String>> result =
+        Arrays.stream(words).collect(
+                Collectors.groupingBy(
+                        x ->
+                            Arrays.stream(x.toLowerCase().split("")).sorted().collect(Collectors.joining())
+                        ,LinkedHashMap::new
+                        ,Collectors.toList()
+                )
+        );
+//       result.entrySet().stream().forEach(System.out::println);
+        System.out.println(result);
+    }
+
+    /**
+     * WAP to return product of alternative numbers in a number array
+     */
+    @Test
+    public void ques20() {
+        int[] nums = {3, 2, 5, 6, 3, 8, 8, 1, 9, 4, 8, 7, 5, 3, 8, 5, 7};
+       // IntStream has a range function where range is the indexes like in angular
+        Integer result =
+        IntStream.range(0, nums.length) //gives a stream of indexes
+                .filter( idx -> idx%2==0)
+                .peek(x -> System.out.println("index = " + x + " & number is " + nums[x]))
+                .map(idx -> nums[idx]) //now you have indexes only right, take numbers out
+                .reduce(1, (a,b) -> a * b);
+        System.out.println(result);
+    }
+
+    /**
+     * find product of numbers 1st & last, 2nd & 2nd last
+     */
+    @Test
+    public void ques21() {
+        //start =0 & len-1-start
+        //start = 1 & len-1-start
+        //you have to move till half of the array
+        //what if the array is odd?
+        int[] nums = {7, 92, 15, 60, 3, 84, 18, 71, 9, 45, 28, 67, 50, 33, 88, 5, 73, 21, 96, 11,
+                82, 31, 77, 40, 1, 64, 90, 13, 7, 52, 26, 98, 58, 24, 86, 70, 17, 35, 93, 19,
+                10, 56, 43, 20, 6, 49, 0, 39, 12, 75, 80, 46, 29, 69, 32, 95, 38, 47, 59, 30,
+                14, 4, 22, 66, 99, 42, 63, 36, 34, 2, 78, 68, 87, 48, 85, 8, 94, 76, 16, 25,
+                81, 74, 44, 55, 41, 97, 62, 53, 23, 57, 51, 27, 89, 91, 65, 83, 61, 79, 72, 54};
+
+        IntStream.range(0, nums.length/2)
+                .map(x -> nums[x] * nums[ (nums.length-1) - x])
+                .forEach(System.out::println);
+    }
+
+    /**
+     * Move all zeros to begining of an int array
+     */
+    @Test
+    public void ques22() {
+        int[] num = {7, 92, 15, 60, 3, 84, 18, 71, 9, 45, 28, 67, 0, 33, 88, 5, 73, 21, 96, 11,
+                82, 31, 77, 0, 1, 64, 90, 13, 7, 52, 26, 98, 58, 24, 86, 0, 17, 35, 93, 19,
+                10, 56, 43, 0, 6, 49, 0, 39, 12, 75, 0, 46, 29, 69, 32, 95, 38, 47, 59, 0,
+                14, 4, 22, 66, 99, 42, 63, 36, 34, 2, 78, 68, 87, 48, 85, 8, 94, 76, 16, 25,
+                81, 74, 44, 55, 41, 97, 62, 53, 23, 57, 51, 27, 89, 91, 65, 83, 61, 79, 72, 54};
+        //M-1 : make a list of zeros & non-zeros, concat both lists, concat two lists using flatmap
+        Stream<Integer> zeros =
+        Arrays.stream(num)
+                .boxed()
+                .filter(x -> x==0);
+
+        Stream<Integer> nonzeros =
+                Arrays.stream(num)
+                        .boxed()
+                        .filter(x -> x>0);
+
+        List<Integer> result = Stream.concat(zeros, nonzeros).collect(Collectors.toList());
+        System.out.println(result);
+
+        //M-2 : Collectors.partitionBy will divide stream into a partition condition
+        //mentioned as lambda in predicate & with a map of the lambda result & the object which pass that
+        // (!! not in-place, returns new array)
+        Map<Boolean, List<Integer>> result2 =
+        Arrays.stream(num).boxed()
+                .collect(Collectors
+                        .partitioningBy(
+                        x -> x != 0 //this results in boolean so map is of key boolean & values are list of int boxed
+                ));
+
+        List<Integer> result3  = result2.entrySet().stream()
+                .flatMap( x -> x.getValue().stream())
+                .collect(Collectors.toList());
+
+        System.out.println(result2);
+        System.out.println(result3);
+
+    }
+
+    /**
+     * Count vowels and consonants in a string
+     */
+    @Test
+    public void ques23() {
+        String line = "Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home/bin/java -ea -Didea.test.cyclic.buffer.size=1048576 -javaagent:/Applications/IntelliJ IDEA CE.app/Contents/lib/idea_rt.jar=61616:/Applications/IntelliJ IDEA CE.app/Contents/bin -Dfile.encoding=UTF-8 -Dsun.st";
+        Map<Boolean, List<String>> wrongRes =
+        Arrays.stream(line.split(""))
+                .filter(x -> x.matches("[a-zA-Z]"))
+                .collect(
+                        Collectors.partitioningBy(
+                                x -> x.matches("[^aeiouAEIOU]")
+                        )
+                );
+        //you do not need list of chars, just count is needed, grouping by would work
+        System.out.println(wrongRes);
+        Map<Boolean, Long> resutlt =
+        Arrays.stream(line.split(""))
+                .filter(x -> x.matches("[a-zA-Z]"))
+                .collect(
+                        Collectors.groupingBy(
+                                x ->  x.matches("[^aeiouAEIOU]"),
+                                Collectors.counting()
+                        )
+                );
+        System.out.println(resutlt);
+
+    }
+
+    /**
+     * reverse a string using string & ReverseInPlace(hint use a temp variable & swap)
+     */
+    @Test
+    public void ques24() {
+        String line = "Library/Java/JavaVirtualMachines/jdk-21";
+        System.out.println(line);
+        String reversed = IntStream.range(0,line.length())
+//                .map(i -> line.charAt( (line.length()-1)-i ))
+// .map(...) in an IntStream expects an int to int transformation.
+                //converting int of IntStream to character
+                .mapToObj(i -> String.valueOf(line.charAt( (line.length()-1)-i )))
+                .collect(Collectors.joining(""));
+//        System.out.println(reversed);
+
+        //M-2 In-place reversal using temp variable
+        String[] letters = line.split("");
+//        You're looping i from 0 to letters.length, but swapping i and j on every iteration.
+//        This causes double swaps, then reverses them again.
+//        It should only go halfway (i < j) to avoid undoing the swap.
+
+//        i < j ensures we only go up to the middle.
+//                Swap letters[i] with letters[j].
+//        When i == j, you're at the middle (no need to swap).
+//        Once i > j, you’ve already reversed everything.
+        //for odd length Middle c stays in place
+
+//        for(int i = 0, j = letters.length-1 ; i < letters.length ; i++, j--) {
+//            String temp = letters[j];
+//            letters[j] = letters[i];
+//            letters[i] = temp;
+//        }
+        for(int i = 0, j = letters.length-1 ; i < j ; i++, j--) {
+            String temp = letters[j];
+            letters[j] = letters[i];
+            letters[i] = temp;
+        }
+        //for reversing if you traverse half the array it would work, so either i = j or i < j or i < line.length/2
+        String reversedResult = Arrays.stream(letters).collect(Collectors.joining());
+        System.out.println(reversedResult);
+
+    }
+
+    /**
+     * Convert string to title case
+     */
+    @Test
+    public void ques25() {
+        String para = "Title case, also known as headline case, is a capitalization style where the first letter of most words in a title or heading is capitalized, while the rest of the letters in those words are lowercase. Minor words like articles (\"a,\" \"an,\" \"the\"), conjunctions, and short prepositions are usually not capitalized, unless they are the first or last word in the title";
+        String result =
+        Arrays.stream(para.split(" "))
+                .map(word ->
+                        { if(word.length()>1){
+                                String title =Character.toUpperCase(word.charAt(0))
+                                        + word.substring(1).toLowerCase();
+                                return title;
+                            } else {
+                                return word;
+                            }
+                        }
+                ).collect(Collectors.joining(" "));
+        System.out.println(result);
+    }
+
+    /**
+     *
+     */
+    @Test
+    public void ques26() {}
 
     @Test
-    public void ques18() {}
+    public void ques27() {}
 
     @Test
-    public void ques19() {}
+    public void ques28() {}
 
     @Test
-    public void ques20() {}
+    public void ques29() {}
 
     @Test
-    public void ques21() {}
+    public void ques30() {}
 
     @Test
-    public void ques22() {}
+    public void ques31() {}
 
     @Test
-    public void ques23() {}
+    public void ques32() {}
 
     @Test
-    public void ques24() {}
+    public void ques33() {}
 
     @Test
-    public void ques25() {}
+    public void ques34() {}
+
+    @Test
+    public void ques35() {}
+
+    @Test
+    public void ques36() {}
+
+    @Test
+    public void ques37() {}
+
+    @Test
+    public void ques38() {}
+
+    @Test
+    public void ques39() {}
+
+    @Test
+    public void ques40() {}
+
+    @Test
+    public void ques41() {}
+
+    @Test
+    public void ques42() {}
+
+    @Test
+    public void ques43() {}
+
+    @Test
+    public void ques44() {}
+
+    @Test
+    public void ques45() {}
+
+    @Test
+    public void ques46() {}
+
+    @Test
+    public void ques47() {}
+
+    @Test
+    public void ques48() {}
+
+    @Test
+    public void ques49() {}
+
+    @Test
+    public void ques50() {}
 
 }

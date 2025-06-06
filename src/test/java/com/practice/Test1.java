@@ -4,50 +4,20 @@ import org.junit.Test;
 
 public class Test1 {
 
-
     @Test
-    public void ques11() {}
+    public void ques1() {
+        System.out.println("Hello World!");
+        int[] arrNums = {1,2,5,4,9 };
+        int sum = 14;
+        int k = 0;
+        for( int i =0, j=arrNums.length-1 ; i < arrNums.length-1 ; i++, j--) {
+            if( sum == arrNums[i] + arrNums[j])
+                System.out.println( "" + arrNums[i] + arrNums[j] );
+            else
+                System.out.println("none") ;
+        }
 
-    @Test
-    public void ques12() {}
+    }
 
-    @Test
-    public void ques13() {}
-
-    @Test
-    public void ques14() {}
-
-    @Test
-    public void ques15() {}
-
-    @Test
-    public void ques16() {}
-
-    @Test
-    public void ques17() {}
-
-    @Test
-    public void ques18() {}
-
-    @Test
-    public void ques19() {}
-
-    @Test
-    public void ques20() {}
-
-    @Test
-    public void ques21() {}
-
-    @Test
-    public void ques22() {}
-
-    @Test
-    public void ques23() {}
-
-    @Test
-    public void ques24() {}
-
-    @Test
-    public void ques25() {}
 
 }
