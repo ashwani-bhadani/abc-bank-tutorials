@@ -12,15 +12,18 @@ import java.util.stream.Stream;
 public class Streams {
 
     /**
-     * 1. find th word having highest length in a sentence
+     * 1. find the word having highest length in a sentence
      * reurns the first longest word occurence
      */
     @Test
     public void ques1() {
         String line = "Quick brown fox jumps over the lazy hare";
-        String result = Arrays.asList(line.split(" ")).stream()
-                .max(Comparator.comparing(String::length)).get();
-        System.out.println("longest word : " + result);
+       String result =
+        Arrays.stream(line.split(" "))
+                .sorted(Comparator.comparing(String::length)) //DNSO is ascending
+                .findFirst()
+                .orElse(null);
+        System.out.println("longest word: "+result);
     }
 
 
@@ -31,13 +34,27 @@ public class Streams {
      */
     @Test
     public void ques2() {
-        String words = "dabcadefg";
-        words.chars().distinct().mapToObj(w -> (char) w) //M-1
-                .forEach(System.out::print);
-        String result = Arrays.stream(words.split("")).distinct().collect(Collectors.joining()); //M-2
-        String res = Arrays.stream(words.split("")).distinct().reduce("",(x,y )-> x+y);  //M-3
-        System.out.println("\n"+result);
-        System.out.println(res);
+        String words = "characterizationcharacterizationcharacterizationcharacterizationcharacterization"; //"dabcadefg";
+        //M-1
+        String result1 =
+        Arrays.stream(words.split(""))
+                .collect(
+                        Collectors.toCollection(LinkedHashSet::new)
+                ).stream()
+                .peek(System.out::print)
+                .reduce("", (a,b) -> a + b);
+        System.out.println(result1);
+
+        //M-2 //int can be cast to char not Character
+        String result2 =
+        words.chars().mapToObj(x -> (char) x) //need to box them to insert
+//                .peek(System.out::print)
+//                .map(LinkedHashMap::new) //wrong creates ne set everytime, use collectors
+                .collect(Collectors.toCollection(LinkedHashSet::new))
+                .stream()
+                .map(String::valueOf)
+                .reduce("", (x,y) -> x+y);
+        System.out.println("\n"+result2);
     }
 
     /**3. given a sentence, find word having the nth highest length & then the length of that word too
@@ -82,11 +99,14 @@ public class Streams {
      */
     @Test
     public void ques5() {
-        String line = "I am learning stream in java 8";
-        Arrays.stream(line.split(" ")).filter(
-                word -> word.replaceAll("[^aeiouAEIOU]", "")   //anything other than in regex will be replaced
-                        .length() == 2 //checking the length to str left with us
-        ).forEach(System.out::println);
+        String line = "This is a beautiful stream based solution";
+        List<String> result =
+        Arrays.stream(line.split(""))
+//                .map(x -> x.replaceAll("[^aeiouAEIOU]",""))
+                // mapping transforms, you need original word intact, use filter
+                .filter(x -> x.replaceAll("[^aeiouAEIOU]","").length()==2)
+                .collect(Collectors.toList());
+        System.out.println(result);
     }
 
     /**6. given a int array divide into 2 lists one having even nos & other having odd
@@ -96,22 +116,23 @@ public class Streams {
     public void ques6() {
         int[] arr = {23,33,44,55,66,77,88,99,11,22,34,67};
         //boxed() -> a Stream consistent of the elements of this stream, each boxed to an Integer
-        List<Integer> numbers = Arrays.stream(arr).boxed().collect(Collectors.toList());
+        Map<Boolean, List<Integer>> result =
+       Arrays.stream(arr)
+               .mapToObj(x -> (Integer) x)
+               .collect(Collectors.partitioningBy(
+                       x -> x%2==0,                 //function result forms keys
+                       Collectors.toList()          //values
+               ));
+        System.out.println(result);
 
-        //M-1
-        Map<Boolean,List<Integer>> result = numbers.stream().collect(Collectors.groupingBy(
-                x -> x%2==0   , Collectors.toList()
-        )); //1st part is Boolean & 2nd is list of accepted & rejected, need to take out the list only
-
-        result.entrySet().stream().forEach(x -> System.out.println(x.getValue() ));
-
-        //M-2 using partitioning by instead of Collectors.groupingBy
-        //partitoningBy uses a predicate but groupingBy uses a function
-        numbers.stream().collect(
-                Collectors.partitioningBy( y ->y%2!=0, Collectors.toList() )
-        ).entrySet().stream()
-                .forEach(k -> System.out.println(k.getValue()));
-
+        Map<Boolean, List<Integer>> result2 =
+        Arrays.stream(arr).filter(x -> x%2==0)
+                .boxed()
+                .collect(Collectors.groupingBy(
+                        x -> x%2 ==0, //will collect only matching values
+                        Collectors.toList()
+                ));
+        System.out.println(result2);
     }
 
     /**
